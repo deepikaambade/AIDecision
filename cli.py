@@ -1,183 +1,129 @@
 import argparse
+import pandas as pd
+import joblib
 import os
 import numpy as np
-import pandas as pd
-import pickle
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+import traceback
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
 
-class BackorderPredictor:
-    def __init__(self, model_path='mlp_model.pkl'):
-        self.model_path = model_path
-        self.model = None
-        self.scaler = None
-
-    def preprocess_data(self, df):
-        """
-        Comprehensive preprocessing of the input dataframe
+# Load Data
+def load_data(file_path):
+    try:
+        print(f"Loading data from {file_path}")
+        df = pd.read_csv(file_path)
+        print(f"Original DataFrame shape: {df.shape}")
+        print(f"Columns: {list(df.columns)}")
         
-        :param df: Input DataFrame
-        :return: Preprocessed features
-        """
-        # Create a copy to avoid modifying the original dataframe
-        df = df.copy()
+        # Drop rows with any NaN values
+        df = df.dropna()
+        print(f"DataFrame shape after dropping NaNs: {df.shape}")
         
-        # Replace '?' with NaN
-        df.replace("?", np.nan, inplace=True)
-        
-        # Columns to drop
-        columns_to_drop = ['UDI', 'Product ID', 'TWF', 'HDF', 'PWF', 'OSF', 'RNF', 'Type']
-        
-        # Drop unnecessary columns
-        df.drop(columns=[col for col in columns_to_drop if col in df.columns], axis=1, inplace=True)
-        
-        # Identify and handle columns
-        for col in df.columns:
-            # If column is object type
-            if df[col].dtype == 'object':
-                # Try to extract numeric part if possible
-                try:
-                    # Remove any non-numeric prefix/suffix and convert to float
-                    df[col] = df[col].str.extract('(\d+\.?\d*)')[0].astype(float)
-                except:
-                    # If extraction fails, drop the column
-                    print(f"Dropping column {col} due to non-numeric content")
-                    df.drop(columns=[col], axis=1, inplace=True)
-        
-        # Ensure all remaining columns are numeric
-        numeric_columns = df.select_dtypes(include=[np.number]).columns
-        df = df[numeric_columns]
-        
-        # Fill missing values with mean
-        df.fillna(df.mean(), inplace=True)
+        # Encode categorical columns
+        for col in df.select_dtypes(include=['object']).columns:
+            print(f"Encoding column: {col}")
+            df[col] = LabelEncoder().fit_transform(df[col])
         
         return df
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        print(traceback.format_exc())
+        raise
 
-    def load_default_data(self):
-        """
-        Load default training data from pickle files
+# Train Model
+def train_model(train_file, model_file):
+    try:
+        df = load_data(train_file)
         
-        :return: X_train, y_train, X_test, y_test
-        """
-        try:
-            with open("X_train.pkl", "rb") as f:
-                X_train = pickle.load(f)
-            with open("y_train.pkl", "rb") as f:
-                y_train = pickle.load(f)
-            with open("X_test.pkl", "rb") as f:
-                X_test = pickle.load(f)
-            with open("y_test.pkl", "rb") as f:
-                y_test = pickle.load(f)
-            return X_train, y_train, X_test, y_test
-        except FileNotFoundError:
-            # Fallback to CSV if pickle files are not found
-            print("Pickle files not found. Attempting to load from CSV.")
-            df = pd.read_csv('ai4i2020.csv')
-            
-            # Separate features and target
-            X = self.preprocess_data(df.drop('Machine failure', axis=1))
-            y = df['Machine failure']
-            
-            # Split the data
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-            
-            return X_train, y_train, X_test, y_test
-
-    def train_model(self):
-        """
-        Train the MLP model
-        """
-        # Load data
-        X_train, y_train, X_test, y_test = self.load_default_data()
+        # Separate features and target
+        X, y = df.iloc[:, :-1], df.iloc[:, -1]
+        print(f"Features shape: {X.shape}")
+        print(f"Target shape: {y.shape}")
+        print(f"Target column name: {df.columns[-1]}")
         
-        # Scale the features
-        self.scaler = MinMaxScaler()
-        X_train_scaled = self.scaler.fit_transform(X_train)
-        X_test_scaled = self.scaler.transform(X_test)
+        # Scale features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
         
-        # Create and train MLP
-        self.model = MLPClassifier(
-            hidden_layer_sizes=(64, 32),  # Two hidden layers
-            activation='relu',
-            max_iter=500,
-            random_state=42
+        # Train model
+        model = MLPClassifier(
+            hidden_layer_sizes=(50, 25), 
+            max_iter=500, 
+            random_state=42,
+            verbose=True  # Added verbose for more training details
         )
-        self.model.fit(X_train_scaled, y_train)
+        model.fit(X_scaled, y)
         
-        # Evaluate the model
-        y_pred = self.model.predict(X_test_scaled)
-        print("Model Performance:")
-        print(classification_report(y_test, y_pred))
-        print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
+        # Predict and evaluate
+        y_pred = model.predict(X_scaled)
+        print("\nModel Performance:")
+        print(classification_report(y, y_pred))
+        print(f"Accuracy: {accuracy_score(y, y_pred):.4f}")
         
-        # Save the model and scaler
-        with open(self.model_path, "wb") as f:
-            pickle.dump({
-                'model': self.model,
-                'scaler': self.scaler
-            }, f)
-        print(f"Model saved to {self.model_path}")
+        # Save model and scaler
+        joblib.dump((model, scaler), model_file)
+        print(f"Model saved to {model_file}")
+    except Exception as e:
+        print(f"Training error: {e}")
+        print(traceback.format_exc())
+        raise
 
-    def predict(self, csv_path):
-        """
-        Predict backorders for a given CSV file
+# Predict Function
+def predict(input_file, model_file, output_file):
+    try:
+        print(f"Loading model from {model_file}")
+        model, scaler = joblib.load(model_file)
         
-        :param csv_path: Path to input CSV file
-        """
-        # Load the trained model
-        try:
-            with open(self.model_path, "rb") as f:
-                model_data = pickle.load(f)
-                self.model = model_data['model']
-                self.scaler = model_data['scaler']
-        except FileNotFoundError:
-            print(f"No trained model found at {self.model_path}. Please train the model first.")
-            return
+        print(f"Preparing input data from {input_file}")
+        df = load_data(input_file)
         
-        # Read and preprocess input data
-        df = pd.read_csv(csv_path)
-        X = self.preprocess_data(df)
+        # Separate features (all columns except the last one)
+        X = df.iloc[:, :-1]
+        print(f"Input features shape: {X.shape}")
         
-        # Scale the features
-        X_scaled = self.scaler.transform(X)
+        # Scale features
+        X_scaled = scaler.transform(X)
         
         # Predict
-        predictions = self.model.predict(X_scaled)
-        probabilities = self.model.predict_proba(X_scaled)[:, 1]
+        predictions = model.predict(X_scaled)
         
         # Add predictions to original dataframe
         df['Predicted_Backorder'] = predictions
-        df['Backorder_Probability'] = probabilities
         
         # Save predictions
-        output_file = "predictions.csv"
         df.to_csv(output_file, index=False)
+        print(f"Predictions saved to {output_file}")
         
-        # Print summary
+        # Print prediction summary
         total_samples = len(predictions)
-        backorder_count = np.sum(predictions)
+        failure_count = np.sum(predictions)
         print(f"\nPrediction Summary:")
         print(f"Total Samples: {total_samples}")
-        print(f"Predicted Backorders: {backorder_count}")
-        print(f"Backorder Percentage: {(backorder_count/total_samples)*100:.2f}%")
-        print(f"Predictions saved to {output_file}")
+        print(f"Predicted Backorders: {failure_count}")
+        print(f"Backorder Percentage: {(failure_count/total_samples)*100:.2f}%")
+    
+    except Exception as e:
+        print(f"Prediction error: {e}")
+        print(traceback.format_exc())
+        raise
 
-def main():
+# CLI Setup
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Backorder Prediction CLI")
-    parser.add_argument("--train", action="store_true", help="Train the MLP model")
-    parser.add_argument("--predict", type=str, help="Path to CSV file for prediction")
+    parser.add_argument("--train", help="Train MLP model using given CSV file")
+    parser.add_argument("--predict", help="Predict backorders from a CSV file")
+    parser.add_argument("--model", default="mlp_model.pkl", help="Path to model file")
+    parser.add_argument("--output", default="predictions.csv", help="Output CSV file")
     args = parser.parse_args()
     
-    predictor = BackorderPredictor()
-    
-    if args.train:
-        predictor.train_model()
-    elif args.predict:
-        predictor.predict(args.predict)
-    else:
-        parser.print_help()
-
-if __name__ == "__main__":
-    main()
+    try:
+        if args.train:
+            train_model(args.train, args.model)
+        elif args.predict:
+            predict(args.predict, args.model, args.output)
+        else:
+            print("Please provide either --train or --predict arguments")
+    except Exception as e:
+        print(f"CLI error: {e}")
+        print(traceback.format_exc())
