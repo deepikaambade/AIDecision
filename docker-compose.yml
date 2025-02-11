@@ -1,0 +1,18 @@
+# version: '3'
+# services:
+#   backorder-cli:
+#     build: .
+#     volumes:
+#       - .:/app
+#     command: --train ai4i2020.csv --model mlp_model.pkl
+version: "3.8"
+
+services:
+  flask_app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_ENV=development
