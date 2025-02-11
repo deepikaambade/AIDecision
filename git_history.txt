@@ -1,0 +1,62 @@
+* 9e4fe3006 Deleted .gitattributes and .gitignore
+* 0d4e98e69 Clean repository with essential ML project files
+* 5f91ab843 final commit i hope
+* 0b8c9d686 Configure Git LFS for large files
+* c4ce1490e Add .gitignore and remove large files from Git tracking
+* b6aa1db10 Removed large files and added profiling_env to .gitignore
+* db1199e75 Complete AI Decision project setup: CLI, Docker, and ML model implementation
+* e75ac425a docker, flask app,etc
+* 51b611591 many hanges
+* af5dba713 heh
+* 0f2002aec Adding numpy and pandas
+* af7a95c70 pkl files
+* f20b5753a did something
+* ce2c1396c i have deleted some files
+* 0d48b0950 Delete AIDecision directory
+* ad630ec02 new data card
+*   98567ee70 Merge branch 'main' of https://github.com/deepikaambade/AIDecision
+|\  
+| * 6e70f7ab9 deleted the files because i canged the dataset itself
+* | 5f96d29ce added data file
+* | e6c17ac5f Removed AIDecision
+* | 3086d74ef deleted as i changed the dataset itself
+|/  
+* 4df845677 Delete Test1.py
+* cc53b1765 Add files via upload
+*   b69cc88e1 Merge branch 'main' of https://github.com/deepikaambade/AIDecision
+|\  
+| * 612d3893f Update README.md
+| * fe8eeeaff Initial commit
+| * 6e89586f7 Deleted .gitattributes and .gitignore
+| * 37ae90c5d Clean repository with essential ML project files
+| * cffda2148 final commit i hope
+| * 22238dbe7 Configure Git LFS for large files
+| * 43bedccef Add .gitignore and remove large files from Git tracking
+| * 2dbe0acc2 Removed large files and added profiling_env to .gitignore
+| * 8db1dca3a Complete AI Decision project setup: CLI, Docker, and ML model implementation
+| * bf3d2003a publishing all
+| * bf6ef4429 docker, flask app,etc
+| * 78750e483 many hanges
+| * 39298fb8f heh
+| * 9d09ff646 Adding numpy and pandas
+| * 7f3fcadbf pkl files
+| * feab72cdf did something
+| * bd19c8d00 i have deleted some files
+| * 65922c09b ....asdfg
+| * 0eeb9d919 Delete AIDecision directory
+| * fd07cd72d new data card
+| *   eb453adcc Merge branch 'main' of https://github.com/deepikaambade/AIDecision
+| |\  
+| | * fd9ca304d deleted the files because i canged the dataset itself
+| * | ce9e260b6 added data file
+| * | 07a8dc873 Removed AIDecision
+| * | aee8492fa deleted as i changed the dataset itself
+| |/  
+| * a88d2213f Delete Test1.py
+| * 247106471 Add files via upload
+| * 9da4f24b5 Merge branch 'main' of https://github.com/deepikaambade/AIDecision
+|/| 
+| * d526df519 Update README.md
+| * 07a9c0379 Initial commit
+* 65c8f43d1 itst
+* 4cb82b053 Add Test1.py
