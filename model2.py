@@ -1,57 +1,38 @@
-# Commented out IPython magic to ensure Python compatibility.
+# -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
 
-from IPython.core.display import display, HTML
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.io as pio
 
-
 import seaborn as sns
-from importlib import reload
 import matplotlib.pyplot as plt
 import matplotlib
 import warnings
 
-# Configure Jupyter Notebook
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.expand_frame_repr', False)
-# pd.set_option('max_colwidth', -1)
-display(HTML("<style>div.output_scroll { height: 35em; }</style>"))
-
-reload(plt)
-# %matplotlib inline
-# %config InlineBackend.figure_format ='retina'
-
+# Basic configuration
 warnings.filterwarnings('ignore')
+matplotlib.use('Agg')  # Non-interactive backend
 
-# configure plotly graph objects
-pio.renderers.default = 'iframe'
-# pio.renderers.default = 'vscode'
+# Configure Plotly
+pio.renderers.default = 'png'
 
+# Plotly template configuration
 pio.templates["ck_template"] = go.layout.Template(
     layout_colorway = px.colors.sequential.Viridis,
-#     layout_hovermode = 'closest',
-#     layout_hoverdistance = -1,
     layout_autosize=False,
     layout_width=800,
     layout_height=600,
     layout_font = dict(family="Calibri Light"),
     layout_title_font = dict(family="Calibri"),
     layout_hoverlabel_font = dict(family="Calibri Light"),
-#     plot_bgcolor="white",
 )
 
-# pio.templates.default = 'seaborn+ck_template+gridon'
 pio.templates.default = 'ck_template+gridon'
-# pio.templates.default = 'seaborn+gridon'
-# pio.templates
 
 df = pd.read_csv('ai4i2020.csv')
-# df = pd.read_csv('ai4i2020.csv')
 
 """First up is just to eyeball the data. It seems that there are two indices: the index and ProductID. We can drop those. There is a Type which is categorical and the remainder are numeric. The last five feastures are all failure modes, so they will not be evaluated in this notebook."""
 
@@ -104,8 +85,6 @@ sns.heatmap(df_cluster2,
             mask=mask,
             linewidths=0.2,
             linecolor='lightgrey').set_facecolor('white')
-
-#!pip install ydata_profiling
 
 from ydata_profiling import ProfileReport
 
@@ -596,8 +575,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import (
-    accuracy_score, recall_score, precision_score, f1_score,
-    matthews_corrcoef, roc_auc_score, ConfusionMatrixDisplay
+    accuracy_score, recall_score, precision_score,
+    f1_score, matthews_corrcoef, roc_auc_score,
+    ConfusionMatrixDisplay
 )
 
 # Assuming X_train, X_test, y_train, y_test are already defined
