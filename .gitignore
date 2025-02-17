@@ -32,3 +32,7 @@ profiling_env/lib/python3.10/site-packages/tangled_up_in_unicode/u14_0_0_data/__
 dist/
 build/
 *.egg-info/
+
+.git/lfs/
+.git/objects/pack/
+backorder_cli_image.tar
