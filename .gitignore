@@ -36,3 +36,8 @@ build/
 .git/lfs/
 .git/objects/pack/
 backorder_cli_image.tar
+# Ignore large Python cache files
+profiling_env/lib/python3.10/site-packages/tangled_up_in_unicode/u13_0_0_data/__pycache__/prop_list_to_property.cpython-310.pyc
+profiling_env/lib/python3.10/site-packages/tangled_up_in_unicode/u14_0_0_data/__pycache__/prop_list_to_property.cpython-310.pyc
+profiling_env/lib/python3.10/site-packages/tangled_up_in_unicode/u14_0_0_data/__pycache__/unicode_data_to_name_start.cpython-310.pyc
+profiling_env/lib/python3.10/site-packages/tangled_up_in_unicode/u13_0_0_data/__pycache__/unicode_data_to_name_start.cpython-310.pyc
